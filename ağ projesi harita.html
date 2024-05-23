@@ -1,0 +1,376 @@
+,<!DOCTYPE html>
+<html>
+<head>
+  <title>Leaflet Haritası - Hastalık Bağlantıları</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <style>
+    html, body {
+      height: 100%;
+      margin: 0;
+    }
+    #map {
+      width: 100%;
+      height: 100%;
+    }
+    .legend {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background-color: white;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      z-index: 1000;
+    }
+    .legend-item {
+      margin-bottom: 5px;
+    }
+    .legend-item span {
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      margin-right: 5px;
+    }
+  </style>
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+</head>
+<body>
+  
+  <div id="map"></div>
+  <div class="legend">
+    <div class="legend-item" onclick="showDisease('Bağ Küllemesi')"><span style="background-color: red;"></span>BAĞ KÜLLEMESİ</div>
+    <div class="legend-item" onclick="showDisease('BAĞ ANTRAKNOZU HASTALIĞI')"><span style="background-color: green;"></span>BAĞ ANTRAKNOZU HASTALIĞI</div>
+    <div class="legend-item" onclick="showDisease('BAĞ MİLDİYÖSÜ')"><span style="background-color: darkblue;"></span>BAĞ MİLDİYÖSÜ</div>
+    <div class="legend-item" onclick="showDisease('SALKIM GÜVESİ')"><span style="background-color: purple;"></span>SALKIM GÜVESİ</div>
+    <div class="legend-item" onclick="showDisease('BAĞ THRİPSLERİ')"><span style="background-color: orange;"></span>BAĞ THRİPSLERİ</div>
+    <div class="legend-item" onclick="showDisease('FİLOKSERA')"><span style="background-color: brown;"></span>FİLOKSERA</div>
+    <div class="legend-item" onclick="showDisease('BAĞ YAPRAK PİRELER')"><span style="background-color: black;"></span>BAĞ YAPRAK PİRELER</div>
+    <div class="legend-item" onclick="showDisease('ASMA AĞUSTOSBÖCEĞİ')"><span style="background-color: grey;"></span>ASMA AĞUSTOSBÖCEĞİ</div>
+    <div class="legend-item" onclick="showDisease('BAĞ ÜVEZİ')"><span style="background-color: cyan;"></span>BAĞ ÜVEZİ</div>
+  </div>
+  <script>
+    var map = L.map('map').setView([38.9637, 35.2433], 6); // Türkiye'nin ortalama koordinatları
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap contributors'
+    }).addTo(map);
+
+
+    function showDisease(diseaseName) {
+      // İlk önce haritadaki tüm hastalık bağlantılarını kaldır
+      map.eachLayer(function(layer) {
+        if (layer instanceof L.Polyline) {
+          map.removeLayer(layer);
+        }
+      });
+      
+      // Seçilen hastalığa ait illerin bağlantılarını ekle
+      var coords = diseases[diseaseName];
+      for (var i = 0; i < coords.length - 1; i++) {
+        L.polyline([coords[i], coords[i + 1]], {color: 'black'}).addTo(map);
+      }
+    }
+
+    // 81 ili işaretleyin
+    var cities = [
+      {name: 'Adana', coords: [37.0, 35.3213]},
+      {name: 'Adıyaman', coords: [37.7648, 38.2786]},
+      {name: 'Afyonkarahisar', coords: [38.7638, 30.5403]},
+      {name: 'Ağrı', coords: [39.7191, 43.0519]},
+      {name: 'Aksaray', coords: [38.3687, 34.0370]},
+      {name: 'Amasya', coords: [40.6539, 35.8330]},
+      {name: 'Ankara', coords: [39.9334, 32.8597]},
+      {name: 'Antalya', coords: [36.8969, 30.7133]},
+      {name: 'Artvin', coords: [41.1828, 41.8183]},
+      {name: 'Aydın', coords: [37.8560, 27.8416]},
+      {name: 'Balıkesir', coords: [39.6484, 27.8826]},
+      {name: 'Bartın', coords: [41.5811, 32.4610]},
+      {name: 'Batman', coords: [37.8812, 41.1351]},
+      {name: 'Bayburt', coords: [40.2552, 40.2249]},
+      {name: 'Bilecik', coords: [40.1500, 29.9833]},
+      {name: 'Bingöl', coords: [39.0626, 40.7696]},
+      {name: 'Bitlis', coords: [38.3938, 42.1232]},
+      {name: 'Bolu', coords: [40.7350, 31.6069]},
+      {name: 'Burdur', coords: [37.7203, 30.2908]},
+      {name: 'Bursa', coords: [40.1828, 29.0665]},
+      {name: 'Çanakkale', coords: [40.1553, 26.4142]},
+      {name: 'Çankırı', coords: [40.6013, 33.6134]},
+      {name: 'Çorum', coords: [40.5489, 34.9533]},
+      {name: 'Denizli', coords: [37.7765, 29.0864]},
+      {name: 'Diyarbakır', coords: [37.9199, 40.2317]},
+      {name: 'Düzce', coords: [40.8438, 31.1565]},
+      {name: 'Edirne', coords: [41.6771, 26.5550]},
+      {name: 'Elazığ', coords: [38.6743, 39.2226]},
+      {name: 'Erzincan', coords: [39.7460, 39.4910]},
+      {name: 'Erzurum', coords: [39.9043, 41.2679]},
+      {name: 'Eskişehir', coords: [39.7767, 30.5206]},
+      {name: 'Gaziantep', coords: [37.0662, 37.3833]},
+      {name: 'Giresun', coords: [40.9173, 38.3874]},
+      {name: 'Gümüşhane', coords: [40.4600, 39.4817]},
+      {name: 'Hakkari', coords: [37.5744, 43.7408]},
+      {name: 'Hatay', coords: [36.4018, 36.3498]},
+      {name: 'Iğdır', coords: [39.9237, 44.0450]},
+      {name: 'Isparta', coords: [37.7648, 30.5566]},
+      {name: 'İstanbul', coords: [41.0082, 28.9784]},
+      {name: 'İzmir', coords: [38.4192, 27.1287]},
+      {name: 'Kahramanmaraş', coords: [37.5778, 36.9371]},
+      {name: 'Karabük', coords: [41.2061, 32.6204]},
+      {name: 'Karaman', coords: [37.1811, 33.2150]},
+      {name: 'Kars', coords: [40.6013, 43.0975]},
+      {name: 'Kastamonu', coords: [41.3887, 33.7827]},
+      {name: 'Kayseri', coords: [38.7312, 35.4787]},
+      {name: 'Kilis', coords: [36.7184, 37.1212]},
+      {name: 'Kırıkkale', coords: [39.8467, 33.5153]},
+      {name: 'Kırklareli', coords: [41.7351, 27.2250]},
+      {name: 'Kırşehir', coords: [39.1458, 34.1600]},
+      {name: 'Kocaeli', coords: [40.8533, 29.8815]},
+      {name: 'Konya', coords: [37.8715, 32.4848]},
+      {name: 'Kütahya', coords: [39.4167, 29.9833]},
+      {name: 'Malatya', coords: [38.3552, 38.3095]},
+      {name: 'Manisa', coords: [38.6191, 27.4289]},
+      {name: 'Mardin', coords: [37.3212, 40.7245]},
+      {name: 'Mersin', coords: [36.8121, 34.6415]},
+      {name: 'Muğla', coords: [37.2153, 28.3636]},
+      {name: 'Muş', coords: [38.7433, 41.5065]},
+      {name: 'Nevşehir', coords: [38.6245, 34.7239]},
+      {name: 'Niğde', coords: [37.9694, 34.6902]},
+      {name: 'Ordu', coords: [40.9839, 37.8764]},
+      {name: 'Osmaniye', coords: [37.2130, 36.1763]},
+      {name: 'Rize', coords: [41.0201, 40.5234]},
+      {name: 'Sakarya', coords: [40.7569, 30.3782]},
+      {name: 'Samsun', coords: [41.2867, 36.33]},
+      {name: 'Siirt', coords: [37.9274, 41.9427]},
+      {name: 'Sinop', coords: [42.0268, 35.1623]},
+      {name: 'Sivas', coords: [39.7477, 37.0179]},
+      {name: 'Şanlıurfa', coords: [37.1675, 38.7955]},
+      {name: 'Şırnak', coords: [37.4187, 42.4918]},
+      {name: 'Tekirdağ', coords: [40.9780, 27.5110]},
+      {name: 'Tokat', coords: [40.3169, 36.5544]},
+      {name: 'Trabzon', coords: [41.0027, 39.7168]},
+      {name: 'Tunceli', coords: [39.1081, 39.5472]},
+      {name: 'Uşak', coords: [38.6823, 29.4082]},
+      {name: 'Van', coords: [38.4946, 43.3832]},
+      {name: 'Yalova', coords: [40.6500, 29.2667]},
+      {name: 'Yozgat', coords: [39.8181, 34.8147]},
+      {name: 'Zonguldak', coords: [41.4564, 31.7987]}
+    ];
+
+    cities.forEach(function(city) {
+      L.circleMarker(city.coords, {
+        color: 'blue',
+        radius: 5
+      }).addTo(map).bindPopup(city.name);
+    });
+
+    // Hastalıkların görüldüğü iller ve bağlantıları
+    var diseases = {
+      'Bağ Küllemesi': [
+        [41.0082, 28.9784], // İstanbul
+        [39.9334, 32.8597], // Ankara
+        [36.8969, 30.7133], // Antalya
+        [41.2867, 36.33], // Samsun
+        [39.7460, 39.4910],//Erzincan
+        [38.6191, 27.4289],//Manisa
+        [38.6743, 39.2226],//Elazığ
+        [37.7765, 29.0864],//Denizli
+        [37.8812, 41.1351],//Batman
+        [40.9780, 27.5110],//Tekirdağ
+        [37.0662, 37.3833],//Gaziantep
+        [36.8121, 34.6415],//Mersin
+        [37.9199, 40.2317],//Diyarbakır
+        [37.0, 35.3213],//Adana
+
+
+      ],
+      
+    };
+
+    for (var disease in diseases) {
+      var coords = diseases[disease];
+      for (var i = 0; i < coords.length - 1; i++) {
+        L.polyline([coords[i], coords[i + 1]], {color: 'red'}).addTo(map);
+      }
+    }
+    var diseases = {
+      'BAĞ ANTRAKNOZU HASTALIĞI': [
+     [38.4192, 27.1287], // İzmir
+     [37.7765, 29.0864], // Denizli
+     [38.6135, 27.4217], // Manisa
+     [40.9780, 27.5110], // Tekirdağ
+     [39.6484, 27.8826], // Balıkesir
+     [37.8444, 27.8456], // Aydın
+     [38.7567, 30.5386], // Afyonkarahisar
+     [38.6939, 34.6857], // Nevşehir
+     [37.0662, 37.3833], // Gaziantep
+     [37.0000, 35.3213], // Adana
+     [39.7477, 37.0179],//sivas
+     [41.7351, 27.2250],//kırklareli
+
+
+      ],
+      
+    };
+
+    for (var disease in diseases) {
+      var coords = diseases[disease];
+      for (var i = 0; i < coords.length - 1; i++) {
+        L.polyline([coords[i], coords[i + 1]], {color: 'green'}).addTo(map);
+      }
+    }
+    var diseases = {
+      'BAĞ MİLDİYÖSÜ': [
+    [37.7765, 29.0864], // Denizli
+    [37.8450, 27.8396], // Aydın
+    [38.2806, 27.1339], // Muğla
+    [37.7552, 29.0864], // Uşak
+    [38.3452, 28.2004], // Manisa
+    [37.7648, 30.5562], // Burdur
+    [38.6743, 39.2226],//Elazığ
+    [37.9199, 40.2317],//Diyarbakır
+      ],
+      
+    };
+
+    for (var disease in diseases) {
+      var coords = diseases[disease];
+      for (var i = 0; i < coords.length - 1; i++) {
+        L.polyline([coords[i], coords[i + 1]], {color: 'darkblue'}).addTo(map);
+      }
+    }
+    var diseases = {
+      'SALKIM GÜVESİ': [
+    [37.8450, 27.8396],//Aydın:
+    [36.8969, 30.7133],//Antalya:
+    [38.6810, 39.2264],//Elazığ:
+    [37.9144, 40.2306],//Diyarbakır:
+    [38.3552, 38.3095],//Malatya:
+    [37.8871, 41.1323],//Batman:
+    [37.5744, 43.7407],//Hakkari:
+    [41.2867, 36.3306], // Trabzon
+    [41.0567, 31.7310], // Zonguldak
+    [41.1351, 37.2875], // Rize
+    [41.2818, 32.6849], // Ordu
+    [39.7191, 43.0519],//Ağrı
+      ],
+      
+    };
+
+    for (var disease in diseases) {
+      var coords = diseases[disease];
+      for (var i = 0; i < coords.length - 1; i++) {
+        L.polyline([coords[i], coords[i + 1]], {color: 'purple'}).addTo(map);
+      }
+    }
+    var diseases = {
+      'BAĞ THRİPSLERİ': [
+    [38.6135, 27.4217], // Manisa
+    [36.8969, 30.7133], // Antalya
+    [37.2153, 28.3636], // Muğla
+    [37.8450, 27.8396], // Aydın
+    [39.6484, 27.8826], // Balıkesir
+    [40.9780, 27.5110], // Tekirdağ
+    [40.1553, 26.4142], // Çanakkale
+    [41.0082, 28.9784], // İstanbul
+    [36.8121, 34.6415],//Mersin
+    [41.6771, 26.5550],//edirne
+
+      ],
+      
+    };
+
+    for (var disease in diseases) {
+      var coords = diseases[disease];
+      for (var i = 0; i < coords.length - 1; i++) {
+        L.polyline([coords[i], coords[i + 1]], {color: 'orange'}).addTo(map);
+      }
+    }
+    var diseases = {
+      'FİLOKSERA': [
+      [37.15, 32.70],//Konya
+      [38.72, 35.70],//Kayseri
+      [40.25, 36.15],//Sivas
+      [40.45, 36.48],//Yozgat
+      [38.42, 31.32],//Afyonkarahisar
+      [36.35, 36.70],//Kilis
+      [37.12, 29.12],//Denizli
+      
+
+      ],
+      
+    };
+
+    for (var disease in diseases) {
+      var coords = diseases[disease];
+      for (var i = 0; i < coords.length - 1; i++) {
+        L.polyline([coords[i], coords[i + 1]], {color: 'brown'}).addTo(map);
+      }
+    }
+    var diseases = {
+      'BAĞ YAPRAK PİRELER': [
+    [41.30, 37.45], // Ordu
+    [40.88, 38.65], // Giresun
+    [38.68, 39.37], // Elazığ
+    [36.33, 36.18], // Hatay
+    [37.95, 36.92], // Kahramanmaraş
+    [40.57, 39.70], // Trabzon
+    [40.53, 36.92],  // Tokat
+    [37.1811, 33.2150],//Karaman 
+
+      ],
+      
+    };
+
+    for (var disease in diseases) {
+      var coords = diseases[disease];
+      for (var i = 0; i < coords.length - 1; i++) {
+        L.polyline([coords[i], coords[i + 1]], {color: 'black'}).addTo(map);
+      }
+    }
+    var diseases = {
+      'ASMA AĞUSTOSBÖCEĞİ': [
+    [38.70, 27.20], // İzmir
+    [37.85, 27.88], // Aydın
+    [38.68, 27.58], // Manisa
+    [37.13, 28.60], // Muğla
+    [37.12, 29.12], // Denizli
+    [40.20, 26.65], // Çanakkale
+    [39.42, 29.98]  // Kütahya
+
+
+      ],
+      
+    };
+
+    for (var disease in diseases) {
+      var coords = diseases[disease];
+      for (var i = 0; i < coords.length - 1; i++) {
+        L.polyline([coords[i], coords[i + 1]], {color: 'grey'}).addTo(map);
+      }
+    }
+    var diseases = {
+      'BAĞ ÜVEZİ': [
+    [40.1828, 29.0665], // Bursa
+    [40.1553, 26.4142], // Çanakkale
+    [39.6484, 27.8826], // Balıkesir
+    [38.7638, 30.5403], // Afyonkarahisar
+    [38.6810, 39.2264], // Elazığ
+    [38.3552, 38.3095], // Malatya
+    [38.3938, 42.1232], // Bitlis
+    [38.7433, 41.5065], // Muş
+    [37.2153, 28.3636], // Muğla
+
+      ],
+      
+    };
+
+    for (var disease in diseases) {
+      var coords = diseases[disease];
+      for (var i = 0; i < coords.length - 1; i++) {
+        L.polyline([coords[i], coords[i + 1]], {color: 'cyan'}).addTo(map);
+      }
+    }
+
+
+
+  </script>
+</body>
+</html>
